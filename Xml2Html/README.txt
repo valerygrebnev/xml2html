@@ -12,6 +12,9 @@ Add the source files listed in the “Implementation” section below to a solut
 
 The source XML file should use the same syntax/schema as the “cd_catalog.xml” (included in the project). For convenience, the source XML file is added to the project debug arguments configuration.    
 
+Run nmake to build from CLI. 
+
+
 IMPLEMENTATION
 
 The implementation uses TinyXML2 library https://github.com/leethomason/tinyxml2, and needs two library files, tinyxml2.h and tinyxml2.cpp, added to the project sources. The project is built in Microsoft Visual Studio 2022 with C++ 14. The sources include the following files:
@@ -27,11 +30,12 @@ The implementation uses TinyXML2 library https://github.com/leethomason/tinyxml2
         XmlCdParser.cpp - XML parser implementation
         XmlCdParser.h - XML parser header
 
-The project directory includes the documentation and input/output examples 
+The project directory includes the documentation input/output examples and nmake makefile 
 
         cd_catalog.html
         cd_catalog.xml
         README.txt
+        makefile
 
 DESIGN NOTES
 
