@@ -12,7 +12,7 @@ Add the source files listed in the “Implementation” section below to a solut
 
 The source XML file should use the same syntax/schema as the “cd_catalog.xml” (included in the project). For convenience, the source XML file is added to the project debug arguments configuration.    
 
-Run nmake to build from CLI. 
+Run nmake to build the program using MSVC CLI. On Linux, run make -f makefile4make.
 
 
 IMPLEMENTATION
@@ -35,13 +35,50 @@ The project directory includes the documentation input/output examples and nmake
         cd_catalog.html
         cd_catalog.xml
         README.txt
-        makefile
+        makefile - for MSVC nmake
+        makefile4make - for Linux-like make utility
 
 DESIGN NOTES
 
 Parsing an XML file and creating an HTML file functionality is separated into two classes XmlDiskCatalogParser, HtmlDiskCatalogWriter following SRP S.O.L.I.D OOP principles.
 
 Constructors accept the file names. The API does not provide functionality to configure file names after instantiation as it is not required by the exercise requirements to parse multiple files in runtime. This could be extended to parse multiple files if needed.
+
+OPTIMIZATION NOTES
+
+The current API is not optimized. As a further performance optimization, the XmlCdParser and HtmlDiskCatalogWriter could be injected to (or created in) a wrapper class “Converter” using a shared parsing results’ container, which is not implemented in the scope of this exercise. 
+
+Reading large data will not cause the stack overflow in the current solution because the vector elements are always created on the heap and not on the stack unless the standard allocator is overridden. 
+
+Reading large data and the related performance issues are not optimized in the current implementation, but could be addressed in the future by data chunking. The chunking data flow would require using/implementing a different XML reader library. 
+
+Note that a simple (“obvious” at the first glance) performance “optimization” of the current solution, for example, by returning a reference instead of copying the result vector is not considered. As it is mentioned above, the performance could be improved by creating a wrapper handling both HtmlDiskCatalogWriter and XmlCdParser and controlling objects’ lifetime. In the current design, returning a reference instead of copying the result data could cause the following issues:
+
+1) When calling the API, a caller should not make any assumption about the API object's lifetime. For example, when calling the  HtmlDiskCatalogWriter, the caller should not assume that the XmlCdParser object is still alive. Returning a reference could be unsafe leading to access violation. Consider the  “optimization” returning a reference: 
+
+	class XmlDiskCatalogParser {
+	...
+		// Return a reference instead of a copy of objects
+		//  std::vector<CdDetails> getCatalog();
+		const std::vector<CdDetails>& getCatalog();
+      };
+
+	const std::vector<CdDetails>& getCatalog(std::string path) {
+		// Create XML parser
+		XmlDiskCatalogParser catalogParser(path);
+		// Parse
+		catalogParser.parse();
+		// return a reference instead of a copy
+		return catalogParser.getCatalog();
+	}
+
+In the code above, the XmlCdParser will be destroyed at the time when reading the result in the HtmlDiskCatalogWriter, which will lead to access violation.
+
+2) API design should not assume that the caller could not call cosnt_case<type>(expression) operator:
+
+	std::vector<CdDetails>& parsingResult = const_cast<std::vector<CdDetails>&>(catalogParser.getCatalog());
+
+The API should prevent changing the state of the XmlCdParser after parsing.
 
 LICENSING
 
