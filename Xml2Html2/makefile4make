@@ -1,0 +1,23 @@
+CC = gcc
+CFLAGS= -c -Wall
+
+program: Xml2Html2.o Xml2HtmlConverter.o HtmlDiskCatalogWriter.o XmlDiskCatalogParser.o tinyxml2.o
+	$(CC) Xml2Html2.o Xml2HtmlConverter.o HtmlDiskCatalogWriter.o XmlDiskCatalogParser.o tinyxml2.o -lstdc++ -pthread -o Xml2Html2
+
+Xml2Html2.o: Xml2Html2.cpp Xml2HtmlConverter.h
+	$(CC) $(CFLAGS) Xml2Html2.cpp
+
+Xml2HtmlConverter.o: Xml2HtmlConverter.cpp Xml2HtmlConverter.h  ConverterLogger.h
+	$(CC) $(CFLAGS) Xml2HtmlConverter.cpp
+
+HtmlDiskCatalogWriter.o: HtmlDiskCatalogWriter.cpp HtmlDiskCatalogWriter.h
+	$(CC) $(CFLAGS) HtmlDiskCatalogWriter.cpp
+
+XmlDiskCatalogParser.o: XmlDiskCatalogParser.cpp XmlDiskCatalogParser.h ConverterLogger.h
+	$(CC) $(CFLAGS) XmlDiskCatalogParser.cpp
+
+tinyxml2.obj: tinyxml2.cpp tinyxml2.h
+	$(CC) $(CFLAGS) tinyxml2.cpp
+
+clean:
+	rm -f *.o Xml2Html2
